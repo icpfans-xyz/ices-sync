@@ -1,5 +1,5 @@
 # ices-sync
-Synchronize DFINITY CAS Canister contract data
+Synchronize DFINITY ICES Canister contract data
 
 # Install Rust and Cargo 
 
