@@ -1,0 +1,28 @@
+[development]
+address = "0.0.0.0"
+port = 8006
+log = "normal"
+limits = { forms = 32768 }
+
+[global.databases]
+postgres = { url = "postgres://postgres:icp123@localhost:5432/icp123_sync" }
+
+[debug]
+port = 8006
+## only the `json` key from `default` will be overridden; `forms` will remain
+# limits = { json = "10MiB" }
+# IC_URL=http://localhost:8000
+
+[release]
+port = 8006
+postgres = { url = "postgres://postgres:icp123@localhost:5432/icp123_sync" }
+
+[production]
+address = "0.0.0.0"
+port = 8006
+postgres = { url = "postgres://postgres:icp123@localhost:5432/icp123_sync" }
+#workers = [number of cpus * 2]
+keep_alive = 5
+log = "critical"
+#secret_key = [randomly generated at launch]
+limits = { forms = 32768 }
