@@ -97,13 +97,11 @@ pub fn gen_day_date() -> () {
         "current_time: {}",
         dt.format("%Y-%m-%d %H:%M:%S").to_string()
     );
-    let mut number = 2;
-    let day_record = 5;
+    let mut number = 300;
+    let day_record = 60;
     let mut index:i64 = 0;
     while number >= 0 {
-        //减去 n天所消耗的时间戳
         let n_day = 1000 * 60 * 60 * 24 * number;
-        //获取n天前的时间戳
         let target_timestamp = current_timestamp - n_day;
         index = gen_data(target_timestamp, day_record, index);
         number -= 1;
