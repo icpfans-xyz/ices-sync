@@ -7,6 +7,7 @@ use rand::Rng;
 
 
 pub fn gen_data(target_timestamp: i64, day_record: i64, mut index: i64) -> i64 {
+    println!("day_record: {}", day_record);
     let mut rng = rand::thread_rng();
     let project_arr = [
         "icp123",
@@ -97,8 +98,10 @@ pub fn gen_day_date() -> () {
         "current_time: {}",
         dt.format("%Y-%m-%d %H:%M:%S").to_string()
     );
-    let mut number = 300;
-    let day_record = 60;
+    let mut rng = rand::thread_rng();
+    let mut number = rng.gen_range(0..34);
+    let day_record = rng.gen_range(0..30);
+    
     let mut index:i64 = 0;
     while number >= 0 {
         let n_day = 1000 * 60 * 60 * 24 * number;
