@@ -257,6 +257,8 @@ dependencies = [
  "rocket",
  "rocket_sync_db_pools",
  "serde",
+ "serde_bytes",
+ "serde_cbor",
  "serde_json",
 ]
 

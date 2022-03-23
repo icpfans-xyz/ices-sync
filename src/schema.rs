@@ -11,6 +11,25 @@ table! {
 }
 
 table! {
+    event_log_v1 (id) {
+        id -> Nullable<BigInt>,
+        index -> Nullable<BigInt>,
+        block -> Nullable<BigInt>,
+        global_id -> Nullable<BigInt>,
+        nonce -> Nullable<BigInt>,
+        canister_id -> Text,
+        caller -> Text,
+        from_addr -> Text,
+        to_addr -> Text,
+        event_key -> Text,
+        event_value -> Text,
+        caller_time -> Nullable<BigInt>,
+        ices_time -> Nullable<BigInt>,
+    }
+}
+
+
+table! {
     project_info (id) {
         id -> Int4,
         project_id -> Varchar,
