@@ -26,7 +26,7 @@ pub struct EventLogV1 {
     pub event_key: String,
     pub event_value: String,
     pub caller_time: Option<NaiveDateTime>,
-    pub canister_time: Option<NaiveDateTime>,
+    pub ices_time: Option<NaiveDateTime>,
     
 }
 
@@ -99,7 +99,7 @@ table! {
         event_key -> Text,
         event_value -> Text,
         caller_time -> Nullable<Timestamp>,
-        canister_time -> Nullable<Timestamp>,
+        ices_time -> Nullable<Timestamp>,
     }
 }
 
@@ -213,8 +213,8 @@ pub async fn sync_canister_event() -> () {
                     to_addr: u.canisterId.to_text(),
                     event_key: event.key.clone(),
                     event_value: value_vec_json,
-                    caller_time: Some(canister_date),
-                    canister_time: Some(caller_date),
+                    caller_time: Some(caller_date),
+                    ices_time: Some(canister_date),
                 };
                 create_event(&new_log);
             }
