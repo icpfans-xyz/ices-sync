@@ -124,13 +124,60 @@ pub async fn sync_canister_event() -> () {
             info!("event_logs len:{}", event_logs.len());
             for u in event_logs.iter() {
                 info!("canisterId:{}", &u.canisterId);
-                // let values = &u.event.values;
-                // 解析元组json
-                // let value_json = serde_json::to_string(values).expect("Error value to json");
+                let event = &u.event;
+                for v_tup in &u.event.values {
+                    info!("Tuple subkey:{}", v_tup.0);
+                    // enum EventValue
+                    // let event_value : EventValue = &v_tup.1;
+                    match &v_tup.1 {
+                        EventValue::True =>{
+                            info!("# True");
+                        }
+                        EventValue::False =>{
+                            info!("# True");
+                        }
+                        EventValue::U64(v) =>{
+                            info!("U64:{}", v);
+                        }
+                        EventValue::I64(i) =>{
+                            info!("I64:{}", i);
+                        }
+                        EventValue::Float(i) =>{
+                            info!("Float:{}", i);
+                        }
+                        EventValue::Text(txt) =>{
+                            info!("Text:{}", txt);
+                        }
+                        EventValue::Principal(p) =>{
+                            info!("Principal:{}", p.to_string());
+                        }
+                        EventValue::Slice(s) =>{
+                            info!("Slice size:{}", s.len());
+                        }
+                        EventValue::Vec(vlist) =>{
+                            info!("Vec size:{}", vlist.len());
+                        }
+                        EventValue::Transaction(ts) => {
+                            info!("Transaction::from{},to:{},amount:{}", ts.from,ts.from,ts.amount);
+                        }
+                    };
+
+                    match &v_tup.2 {
+                        Indexed::Indexed => {
+                            info!("Indexed")
+                        }
+                        Indexed::Not => {
+                            info!("Not Indexed")
+                        }
+                    }
+                    
+                }
+                // let value_json = serde_json::to_string(&u.event.values).expect("Error value to json");
+
                 let bytes =
-                    Encode!(&u.index, &u.block, &u.nonce,&u.canisterTime).expect("Error Encode canister result to byte");
-                let (c_index, c_block ,c_nonce, c_time) =
-                    Decode!(&bytes, u128, u128, u128, i128).expect("Error Decode canister  result");
+                    Encode!(&u.index, &u.block, &u.nonce,&u.canisterTime, &event.time).expect("Error Encode canister result to byte");
+                let (c_index, c_block ,c_nonce, c_time, caller_time) =
+                    Decode!(&bytes, u128, u128, u128, i128, i128).expect("Error Decode canister  result");
                 let index: i64 = match i64::try_from(c_index) {
                     Ok(i) => i,
                     Err(_) => 0,
@@ -147,8 +194,15 @@ pub async fn sync_canister_event() -> () {
                     Ok(i) => i/1000000,
                     Err(_) => 0,
                 };
+                let caller_timestamp: i64 = match i64::try_from(caller_time) {
+                    Ok(i) => i/1000000,
+                    Err(_) => 0,
+                };
                 let canister_dt: DateTime<Utc> = Utc.timestamp_millis(canister_timestamp);
                 let canister_date = canister_dt.naive_utc();
+
+                let caller_dt: DateTime<Utc> = Utc.timestamp_millis(caller_timestamp);
+                let caller_date = caller_dt.naive_utc();
                 // let value_json = serde_json::to_string(&u.eventValue).expect("Error value to json");
                 let new_log = EventLogV1 {
                     id: None,
@@ -156,13 +210,13 @@ pub async fn sync_canister_event() -> () {
                     block: Some(block),
                     nonce: Some(nonce),
                     canister_id: u.canisterId.to_text(),
-                    caller: u.canisterId.to_text(),
+                    caller: event.caller.to_text(),
                     from_addr: u.canisterId.to_text(),
                     to_addr: u.canisterId.to_text(),
-                    event_key: "subkey".to_string(),
+                    event_key: event.key.clone(),
                     event_value: "value".to_string(),
                     caller_time: Some(canister_date),
-                    canister_time: Some(canister_date),
+                    canister_time: Some(caller_date),
                 };
                 create_event(&new_log);
             }
