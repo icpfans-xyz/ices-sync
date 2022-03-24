@@ -45,12 +45,12 @@ async fn main() -> Result<(), rocket::Error> {
 }
 
 pub async fn startup_schedules() {
-    let mut interval = tokio::time::interval(Duration::from_secs(5));
+    let mut interval = tokio::time::interval(Duration::from_secs(3));
 
     loop {
         interval.tick().await;
         // no job_scheduler anymore, calculating via interval at the top!
-        info!("sync every 5 seconds!");
+        info!("sync every 3 seconds!");
         event_log::service::sync_canister_event().await;
     }
 }
