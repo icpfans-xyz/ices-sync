@@ -151,7 +151,6 @@ pub async fn sync_canister_event() -> () {
                     let mut sub_value_str = String::new();
                     if value_vec.len()>1 {
                         let value_vec_json = serde_json::to_string(&value_vec).expect("Error value to json");
-                        info!("value_vec_json:{}",value_vec_json);
                         sub_value_str.push_str(&value_vec_json);
                     } 
                     if value_vec.len()==1 {
@@ -289,7 +288,7 @@ fn recursive_event_value(value : &EventValue, value_vec : & mut  Vec<String>
 fn get_last_index() -> i64 {
     let conn = connection::establish_connection();
     let results = t_event_logs_v1::table
-        .order_by(t_event_logs_v1::index.desc())
+        .order_by(t_event_logs_v1::id.desc())
         .limit(1)
         .load::<EventLogV1>(&conn)
         .expect("Error loading event");
@@ -298,7 +297,13 @@ fn get_last_index() -> i64 {
     }
 
     match results.get(0) {
-        Some(log) => return log.index.unwrap(),
+        Some(log) => {
+            match log.index {
+                Some (index) => return index,
+                None => return 0,
+            }
+            
+        },
         None => return 0,
     }
 }
