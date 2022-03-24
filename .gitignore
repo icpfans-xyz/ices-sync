@@ -17,3 +17,5 @@ dist/
 # rust code
 target/
 
+.env
+
