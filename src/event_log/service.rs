@@ -145,7 +145,9 @@ pub async fn sync_canister_event() -> () {
                     let mut value_vec: Vec<String> = Vec::new();
                     let mut transtion_vec: Vec<SubValue> = Vec::new();
 
-                    recursive_event_value(&v_tup.1, & mut value_vec, & mut transtion_vec, indexed);
+                    let event_value = &v_tup.1;
+                    let mut is_transaction = false;
+                    recursive_event_value(event_value, & mut value_vec, & mut transtion_vec, indexed, & mut is_transaction);
                     
                     info!("value_vec len:{}", value_vec.len());
                     let mut sub_value_str = String::new();
@@ -164,7 +166,10 @@ pub async fn sync_canister_event() -> () {
                         indexed: indexed,
                     };
 
-                    sub_value_vec.push(sub_value);
+                    if is_transaction == false {
+                        sub_value_vec.push(sub_value);
+                    }
+                    
                     // append transtion
                     sub_value_vec.append(& mut transtion_vec);
                     
@@ -227,7 +232,7 @@ pub async fn sync_canister_event() -> () {
 
 
 fn recursive_event_value(value : &EventValue, value_vec : & mut  Vec<String>
-    ,transtion_vec : & mut  Vec<SubValue>, indexed : bool) -> () {
+    ,transtion_vec : & mut  Vec<SubValue>, indexed : bool, is_transaction : & mut bool) -> () {
     match value {
         EventValue::True =>{
             value_vec.push("true".to_string());
@@ -245,11 +250,9 @@ fn recursive_event_value(value : &EventValue, value_vec : & mut  Vec<String>
             value_vec.push(v.to_string());
         }
         EventValue::Text(txt) =>{
-            info!("Text:{}", txt);
             value_vec.push(txt.to_string());
         }
         EventValue::Principal(p) =>{
-            info!("Principal:{}", p.to_string());
             value_vec.push(p.to_string());
         }
         EventValue::Slice(buf) =>{
@@ -258,10 +261,11 @@ fn recursive_event_value(value : &EventValue, value_vec : & mut  Vec<String>
         }
         EventValue::Vec(vlist) =>{
             for v in  vlist.iter() {
-                recursive_event_value(&v, value_vec,transtion_vec,indexed);
+                recursive_event_value(&v, value_vec,transtion_vec,indexed,is_transaction);
             }
         }
         EventValue::Transaction(ts) => {
+            *is_transaction = true;
             let sub_key  = SubValue {
                 sub_key: String::from("from"),
                 sub_value: ts.from.to_string(),
