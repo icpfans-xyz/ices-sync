@@ -240,29 +240,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cas-sync"
-version = "0.1.0"
-dependencies = [
- "candid",
- "chrono",
- "diesel",
- "dotenv",
- "env_logger",
- "garcon",
- "ic-agent",
- "ic-types 0.2.2",
- "log",
- "rand",
- "ring",
- "rocket",
- "rocket_sync_db_pools",
- "serde",
- "serde_bytes",
- "serde_cbor",
- "serde_json",
-]
-
-[[package]]
 name = "cc"
 version = "1.0.72"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -899,6 +876,29 @@ dependencies = [
  "serde_bytes",
  "sha2",
  "thiserror",
+]
+
+[[package]]
+name = "ices-sync"
+version = "0.1.0"
+dependencies = [
+ "candid",
+ "chrono",
+ "diesel",
+ "dotenv",
+ "env_logger",
+ "garcon",
+ "ic-agent",
+ "ic-types 0.2.2",
+ "log",
+ "rand",
+ "ring",
+ "rocket",
+ "rocket_sync_db_pools",
+ "serde",
+ "serde_bytes",
+ "serde_cbor",
+ "serde_json",
 ]
 
 [[package]]

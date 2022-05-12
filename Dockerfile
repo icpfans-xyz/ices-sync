@@ -1,47 +1,56 @@
-FROM rust:1.56.1 as builder
-
-RUN USER=root cargo new --bin cas-sync
-WORKDIR ./cas-sync
-COPY ./Cargo.toml ./Cargo.toml
-RUN cargo build --release \
-    && rm src/*.rs target/release/deps/cas_sync*
-
-ADD . ./
-
-RUN cargo build --release
-
-
-FROM debian:bookworm-slim
-
-ARG APP=/usr/src/app
-
-RUN apt-get update \
-    && apt-get install -y ca-certificates tzdata \
-    && apt-get install libpq5 -y \
+FROM ubuntu:22.04 as build
+RUN apt-get update -qq && apt-get install -y \
+    git \
+    cmake \
+    g++ \
+    pkg-config \
+    libssl-dev \
+    curl \
+    llvm \
+    clang \
+    libpq-dev \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
 
-EXPOSE 8006
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN cargo install diesel_cli --no-default-features --features "postgres" --bin diesel
 
-ENV TZ=Etc/UTC \
-    APP_USER=appuser
+WORKDIR /sync
+RUN cargo new --bin cas-sync
+WORKDIR /sync/cas-sync
 
-RUN groupadd $APP_USER \
-    && useradd -g $APP_USER $APP_USER \
-    && mkdir -p ${APP}
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./ ./
 
-COPY --from=builder /cas-sync/target/release/cas-sync ${APP}/cas-sync
+ENV CARGO_TARGET_DIR=/tmp/target
+RUN cargo build --release
 
-RUN chown -R $APP_USER:$APP_USER ${APP}
+# ============================== EXECUTION ======================================
+FROM ubuntu:22.04 as execution
 
-USER $APP_USER
-WORKDIR ${APP}
+RUN apt-get update -qq && apt-get install -y \
+    libssl-dev \
+    libpq-dev \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV DATABASE_URL=postgresql://postgres:icp123@localhost:5432/icp123_sync \
+WORKDIR /sync/cas-sync
+COPY --from=build /tmp/target/release/ices-sync .
+
+COPY --from=build /usr/local/cargo/bin/diesel .
+
+COPY ./migrations ./migrations
+
+ENV DATABASE_URL=postgresql://ices:password@localhost:5432/ices_sync \
     IC_URL=https://ic0.app \
     CANISTER_ID=hzpfi-laaaa-aaaah-aa4cq-cai \
     ROCKET_PORT=8006 \
     ROCKET_ADDRESS=0.0.0.0 \
     RUST_LOG=info
 
-CMD ["./cas-sync"]
+CMD ./diesel migration run && ./ices-sync
