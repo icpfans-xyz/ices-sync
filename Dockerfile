@@ -46,9 +46,9 @@ COPY --from=build /usr/local/cargo/bin/diesel .
 
 COPY ./migrations ./migrations
 
-ENV DATABASE_URL=postgresql://ices:password@localhost:5432/ices_sync \
+ENV DATABASE_URL=postgresql://postgre:password@localhost:5432/ices_sync \
     IC_URL=https://ic0.app \
-    CANISTER_ID=hzpfi-laaaa-aaaah-aa4cq-cai \
+    CANISTER_ID=ydetr-mqaaa-aaaah-aa6lq-cai \
     ROCKET_PORT=8006 \
     ROCKET_ADDRESS=0.0.0.0 \
     RUST_LOG=info
